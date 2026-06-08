@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../core/theme.dart';
 import '../../widgets/custom_text_field.dart';
-import '../../widgets/loading_button.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -51,10 +50,21 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       }
     } catch (e) {
       if (mounted) {
+        // Mengubah pesan error teknis rate-limit menjadi bahasa yang user-friendly
+        String errorMessage;
+        final errorString = e.toString().toLowerCase();
+
+        if (errorString.contains('rate limit') || errorString.contains('429')) {
+          errorMessage = 'Terlalu banyak permintaan pendaftaran. Mohon tunggu 5-15 menit sebelum mencoba lagi.';
+        } else {
+          errorMessage = 'Registrasi gagal: ${e.toString()}';
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Registrasi gagal: ${e.toString()}'),
+            content: Text(errorMessage),
             backgroundColor: AppTheme.errorColor,
+            duration: const Duration(seconds: 5), // Memberikan waktu lebih lama agar terbaca
           ),
         );
       }

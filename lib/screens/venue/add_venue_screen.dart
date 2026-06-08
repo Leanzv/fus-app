@@ -197,7 +197,7 @@ class _AddVenueScreenState extends ConsumerState<AddVenueScreen> {
 
               // Sport type dropdown
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: InputDecoration(
                   labelText: 'Jenis Olahraga',
                   prefixIcon: const Icon(Icons.sports),

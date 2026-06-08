@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -36,14 +35,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/auth/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/auth/register', builder: (_, __) => const RegisterScreen()),
       GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
-      GoRoute(
-        path: '/venue/:id',
-        builder: (_, state) => VenueDetailScreen(venueId: state.pathParameters['id']!),
-      ),
       GoRoute(path: '/venue/add', builder: (_, __) => const AddVenueScreen()),
       GoRoute(
         path: '/venue/:id/edit',
         builder: (_, state) => EditVenueScreen(venueId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/venue/:id',
+        builder: (_, state) => VenueDetailScreen(venueId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/venue/:id/review',

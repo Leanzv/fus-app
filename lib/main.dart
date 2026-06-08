@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'screens/splash_screen.dart';
 import 'core/theme.dart';
 import 'core/router.dart';
 
@@ -10,8 +9,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
-    url: 'https://sqjnzxrssejtzpsjfgxv.supabase.co/rest/v1/',         // Ganti dengan URL Supabase Anda
-    anonKey: 'sb_publishable_Nb-p0Ln9bZT14N9S1VAmZg_ThcqrhYp', // Ganti dengan Anon Key Supabase Anda
+    url: 'https://jpvvhtvdmjykwdxgnjxu.supabase.co',         // Ganti dengan URL Supabase Anda
+    anonKey: 'sb_publishable_H9Z8Ds59_MPaihr6pKySug_NwWAGB5k', // Ganti dengan Anon Key Supabase Anda
   );
 
   runApp(

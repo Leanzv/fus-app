@@ -69,7 +69,7 @@ class AuthService {
 
     await supabase.from('profiles').update({
       'name': name,
-      if (avatarUrl != null) 'avatar_url': avatarUrl,
+      'avatar_url': ?avatarUrl,
     }).eq('id', userId);
   }
 

@@ -80,7 +80,7 @@ class _EditVenueScreenState extends ConsumerState<EditVenueScreen> {
         'name': _nameCtrl.text.trim(),
         'type': _selectedType,
         'description': _descCtrl.text.trim(),
-        if (imageUrl != null) 'image_url': imageUrl,
+        'image_url': ?imageUrl,
       });
 
       ref.invalidate(venueListProvider);
@@ -199,7 +199,7 @@ class _EditVenueScreenState extends ConsumerState<EditVenueScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedType,
+                initialValue: _selectedType,
                 decoration: InputDecoration(
                   labelText: 'Jenis Olahraga',
                   prefixIcon: const Icon(Icons.sports),
