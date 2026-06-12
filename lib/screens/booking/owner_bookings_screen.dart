@@ -5,6 +5,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/booking_provider.dart';
 import '../../providers/venue_provider.dart';
 import '../../repositories/booking_repository.dart';
+import '../../models/booking_model.dart';
 import '../../core/theme.dart';
 
 class OwnerBookingsScreen extends ConsumerWidget {
@@ -21,7 +22,9 @@ class OwnerBookingsScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (profile) {
-          if (profile == null) return const Center(child: Text('Profil tidak ditemukan'));
+          if (profile == null) {
+            return const Center(child: Text('Profil tidak ditemukan'));
+          }
           final ownerVenuesAsync = ref.watch(ownerVenuesProvider(profile.id));
 
           return ownerVenuesAsync.when(
@@ -32,7 +35,8 @@ class OwnerBookingsScreen extends ConsumerWidget {
               final bookingsAsync = ref.watch(ownerBookingsProvider(venueIds));
 
               return bookingsAsync.when(
-                loading: () => const Center(child: CircularProgressIndicator()),
+                loading: () =>
+                    const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Center(child: Text('Error: $e')),
                 data: (bookings) {
                   if (bookings.isEmpty) {
@@ -42,11 +46,13 @@ class OwnerBookingsScreen extends ConsumerWidget {
                         children: [
                           Text('📅', style: TextStyle(fontSize: 60)),
                           SizedBox(height: 16),
-                          Text('Belum ada permintaan booking',
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTheme.textPrimary)),
+                          Text(
+                            'Belum ada permintaan booking',
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.textPrimary),
+                          ),
                         ],
                       ),
                     );
@@ -54,10 +60,10 @@ class OwnerBookingsScreen extends ConsumerWidget {
                   return ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: bookings.length,
-                    itemBuilder: (context, index) {
-                      final booking = bookings[index];
-                      return _BookingCard(booking: booking, ref: ref);
-                    },
+                    itemBuilder: (context, index) => _BookingCard(
+                      booking: bookings[index],
+                      ref: ref,
+                    ),
                   );
                 },
               );
@@ -70,7 +76,7 @@ class OwnerBookingsScreen extends ConsumerWidget {
 }
 
 class _BookingCard extends StatelessWidget {
-  final dynamic booking;
+  final BookingModel booking;
   final WidgetRef ref;
 
   const _BookingCard({required this.booking, required this.ref});
@@ -86,7 +92,7 @@ class _BookingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
+            // Header: user info + status badge
             Row(
               children: [
                 CircleAvatar(
@@ -94,7 +100,7 @@ class _BookingCard extends StatelessWidget {
                   backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
                   child: Text(
                     booking.userName?.isNotEmpty == true
-                        ? booking.userName[0].toUpperCase()
+                        ? booking.userName![0].toUpperCase()
                         : '?',
                     style: const TextStyle(
                         color: AppTheme.primaryColor,
@@ -115,14 +121,14 @@ class _BookingCard extends StatelessWidget {
                         Text(
                           booking.userEmail!,
                           style: const TextStyle(
-                              color: AppTheme.textSecondary, fontSize: 12),
+                              color: AppTheme.textSecondary, fontSize: 11),
                         ),
                     ],
                   ),
                 ),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: booking.statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -138,21 +144,35 @@ class _BookingCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
+
+            // Info venue
             if (booking.venueName != null)
-              Row(
-                children: [
-                  const Icon(Icons.location_on_outlined,
-                      size: 14, color: AppTheme.textSecondary),
-                  const SizedBox(width: 4),
-                  Text(
-                    booking.venueName!,
-                    style: const TextStyle(
-                        color: AppTheme.textSecondary, fontSize: 12),
-                  ),
-                ],
+              _InfoRow(
+                icon: Icons.location_on_outlined,
+                text: booking.venueName!,
               ),
+
+            // Info tanggal & slot waktu
+            if (booking.bookingDate != null)
+              _InfoRow(
+                icon: Icons.calendar_today_outlined,
+                text: DateFormat('EEEE, d MMMM yyyy', 'id_ID')
+                    .format(booking.bookingDate!),
+              ),
+
+            if (booking.slotTimeLabel.isNotEmpty)
+              _InfoRow(
+                icon: Icons.access_time_rounded,
+                text:
+                    '${booking.slotTimeLabel}  ·  ${booking.slotPriceLabel}',
+                color: AppTheme.primaryColor,
+              ),
+
             const SizedBox(height: 8),
+
+            // Pesan
             Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: AppTheme.backgroundColor,
@@ -166,16 +186,18 @@ class _BookingCard extends StatelessWidget {
                     height: 1.4),
               ),
             ),
+
+            // Waktu booking dikirim
             if (booking.createdAt != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
               Text(
-                DateFormat('dd MMM yyyy, HH:mm').format(booking.createdAt!),
+                'Dikirim: ${DateFormat('d MMM yyyy, HH:mm').format(booking.createdAt!)}',
                 style: const TextStyle(
                     color: AppTheme.textSecondary, fontSize: 11),
               ),
             ],
 
-            // Action buttons (hanya jika pending)
+            // Tombol aksi (hanya jika pending)
             if (booking.status == 'pending') ...[
               const SizedBox(height: 12),
               Row(
@@ -189,7 +211,8 @@ class _BookingCard extends StatelessWidget {
                       },
                       style: OutlinedButton.styleFrom(
                           foregroundColor: AppTheme.errorColor,
-                          side: const BorderSide(color: AppTheme.errorColor)),
+                          side: const BorderSide(
+                              color: AppTheme.errorColor)),
                       child: const Text('Tolak'),
                     ),
                   ),
@@ -209,6 +232,40 @@ class _BookingCard extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color? color;
+
+  const _InfoRow({required this.icon, required this.text, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        children: [
+          Icon(icon,
+              size: 14,
+              color: color ?? AppTheme.textSecondary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                  color: color ?? AppTheme.textSecondary,
+                  fontSize: 12,
+                  fontWeight: color != null
+                      ? FontWeight.w600
+                      : FontWeight.normal),
+            ),
+          ),
+        ],
       ),
     );
   }

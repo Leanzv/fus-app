@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,6 +15,7 @@ import '../screens/booking/booking_screen.dart';
 import '../screens/booking/owner_bookings_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../screens/owner/owner_dashboard_screen.dart';
+import '../screens/owner/manage_slots_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -33,27 +35,51 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
       GoRoute(path: '/auth/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(path: '/auth/register', builder: (_, __) => const RegisterScreen()),
-      GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
-      GoRoute(path: '/venue/add', builder: (_, __) => const AddVenueScreen()),
       GoRoute(
-        path: '/venue/:id/edit',
-        builder: (_, state) => EditVenueScreen(venueId: state.pathParameters['id']!),
+        path: '/auth/register',
+        builder: (_, __) => const RegisterScreen(),
       ),
+      GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+
+      // ✅ /venue/add HARUS sebelum /venue/:id
+      GoRoute(path: '/venue/add', builder: (_, __) => const AddVenueScreen()),
+
       GoRoute(
         path: '/venue/:id',
-        builder: (_, state) => VenueDetailScreen(venueId: state.pathParameters['id']!),
+        builder: (_, state) =>
+            VenueDetailScreen(venueId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/venue/:id/edit',
+        builder: (_, state) =>
+            EditVenueScreen(venueId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/venue/:id/review',
-        builder: (_, state) => AddReviewScreen(venueId: state.pathParameters['id']!),
+        builder: (_, state) =>
+            AddReviewScreen(venueId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/venue/:id/booking',
-        builder: (_, state) => BookingScreen(venueId: state.pathParameters['id']!),
+        builder: (_, state) =>
+            BookingScreen(venueId: state.pathParameters['id']!),
       ),
-      GoRoute(path: '/owner/bookings', builder: (_, __) => const OwnerBookingsScreen()),
-      GoRoute(path: '/owner/dashboard', builder: (_, __) => const OwnerDashboardScreen()),
+      GoRoute(
+        path: '/venue/:id/slots',
+        builder: (_, state) => ManageSlotsScreen(
+          venueId: state.pathParameters['id']!,
+          venueName: state.extra as String? ?? 'Venue',
+        ),
+      ),
+
+      GoRoute(
+        path: '/owner/bookings',
+        builder: (_, __) => const OwnerBookingsScreen(),
+      ),
+      GoRoute(
+        path: '/owner/dashboard',
+        builder: (_, __) => const OwnerDashboardScreen(),
+      ),
       GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
     ],
   );

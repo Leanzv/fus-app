@@ -5,8 +5,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/venue_provider.dart';
 import '../../providers/booking_provider.dart';
 import '../../repositories/venue_repository.dart';
+import '../../models/venue_model.dart';
 import '../../core/theme.dart';
-import '../../widgets/venue_card.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class OwnerDashboardScreen extends ConsumerWidget {
   const OwnerDashboardScreen({super.key});
@@ -36,15 +37,15 @@ class OwnerDashboardScreen extends ConsumerWidget {
           }
           if (!profile.isOwner) {
             return const Center(
-              child: Text('Halaman ini hanya untuk Owner'),
-            );
+                child: Text('Halaman ini hanya untuk Owner'));
           }
 
           final ownerVenuesAsync =
               ref.watch(ownerVenuesProvider(profile.id));
 
           return ownerVenuesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () =>
+                const Center(child: CircularProgressIndicator()),
             error: (e, _) => Center(child: Text('Error: $e')),
             data: (venues) {
               final venueIds = venues.map((v) => v.id).toList();
@@ -57,7 +58,7 @@ class OwnerDashboardScreen extends ConsumerWidget {
 
               return CustomScrollView(
                 slivers: [
-                  // Stats cards
+                  // Stats
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -81,7 +82,7 @@ class OwnerDashboardScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  // Booking shortcut
+                  // Booking shortcut banner
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -102,8 +103,8 @@ class OwnerDashboardScreen extends ConsumerWidget {
                           child: Row(
                             children: [
                               const Text('📥',
-                                  style: TextStyle(fontSize: 28)),
-                              const SizedBox(width: 14),
+                                  style: TextStyle(fontSize: 26)),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment:
@@ -139,9 +140,11 @@ class OwnerDashboardScreen extends ConsumerWidget {
                   // Venue list header
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                      padding:
+                          const EdgeInsets.fromLTRB(20, 16, 20, 8),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             'Venue Saya',
@@ -152,7 +155,8 @@ class OwnerDashboardScreen extends ConsumerWidget {
                             ),
                           ),
                           TextButton.icon(
-                            onPressed: () => context.push('/venue/add'),
+                            onPressed: () =>
+                                context.push('/venue/add'),
                             icon: const Icon(Icons.add, size: 16),
                             label: const Text('Tambah'),
                           ),
@@ -161,12 +165,13 @@ class OwnerDashboardScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  // Venue list
+                  // Venue list with slot management
                   venues.isEmpty
                       ? SliverFillRemaining(
                           child: Center(
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment:
+                                  MainAxisAlignment.center,
                               children: [
                                 const Text('🏟️',
                                     style: TextStyle(fontSize: 60)),
@@ -184,74 +189,78 @@ class OwnerDashboardScreen extends ConsumerWidget {
                                       context.push('/venue/add'),
                                   icon: const Icon(Icons.add,
                                       color: Colors.white),
-                                  label:
-                                      const Text('Tambah Venue Pertama'),
+                                  label: const Text(
+                                      'Tambah Venue Pertama'),
                                 ),
                               ],
                             ),
                           ),
                         )
                       : SliverPadding(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16),
                           sliver: SliverList(
                             delegate: SliverChildBuilderDelegate(
                               (context, index) {
                                 final venue = venues[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: VenueCard(
-                                    venue: venue,
-                                    showOwnerActions: true,
-                                    onTap: () => context
-                                        .push('/venue/${venue.id}'),
-                                    onEdit: () => context
-                                        .push('/venue/${venue.id}/edit'),
-                                    onDelete: () async {
-                                      final confirm = await showDialog<bool>(
-                                        context: context,
-                                        builder: (_) => AlertDialog(
-                                          title: const Text('Hapus Venue'),
-                                          content: Text(
-                                              'Yakin hapus "${venue.name}"?'),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(
-                                                      context, false),
-                                              child: const Text('Batal'),
-                                            ),
-                                            ElevatedButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(
-                                                      context, true),
-                                              style:
-                                                  ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          AppTheme
-                                                              .errorColor),
-                                              child:
-                                                  const Text('Hapus'),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                      if (confirm == true) {
-                                        await VenueRepository()
-                                            .deleteVenue(venue.id);
-                                        ref.invalidate(
-                                            ownerVenuesProvider);
-                                        ref.invalidate(venueListProvider);
-                                      }
-                                    },
+                                return _OwnerVenueCard(
+                                  venue: venue,
+                                  onView: () => context
+                                      .push('/venue/${venue.id}'),
+                                  onEdit: () => context.push(
+                                      '/venue/${venue.id}/edit'),
+                                  onManageSlots: () => context.push(
+                                    '/venue/${venue.id}/slots',
+                                    extra: venue.name,
                                   ),
+                                  onDelete: () async {
+                                    final confirm =
+                                        await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title:
+                                            const Text('Hapus Venue'),
+                                        content: Text(
+                                            'Yakin hapus "${venue.name}"?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(
+                                                    context, false),
+                                            child:
+                                                const Text('Batal'),
+                                          ),
+                                          ElevatedButton(
+                                            onPressed: () =>
+                                                Navigator.pop(
+                                                    context, true),
+                                            style: ElevatedButton
+                                                .styleFrom(
+                                                    backgroundColor:
+                                                        AppTheme
+                                                            .errorColor),
+                                            child:
+                                                const Text('Hapus'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      await VenueRepository()
+                                          .deleteVenue(venue.id);
+                                      ref.invalidate(
+                                          ownerVenuesProvider);
+                                      ref.invalidate(venueListProvider);
+                                    }
+                                  },
                                 );
                               },
                               childCount: venues.length,
                             ),
                           ),
                         ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                  const SliverToBoxAdapter(
+                      child: SizedBox(height: 80)),
                 ],
               );
             },
@@ -262,8 +271,188 @@ class OwnerDashboardScreen extends ConsumerWidget {
         onPressed: () => context.push('/venue/add'),
         backgroundColor: AppTheme.primaryColor,
         icon: const Icon(Icons.add, color: Colors.white),
-        label:
-            const Text('Tambah Venue', style: TextStyle(color: Colors.white)),
+        label: const Text('Tambah Venue',
+            style: TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+}
+
+// ─── Owner Venue Card ─────────────────────────────────────────
+
+class _OwnerVenueCard extends StatelessWidget {
+  final VenueModel venue;
+  final VoidCallback onView;
+  final VoidCallback onEdit;
+  final VoidCallback onManageSlots;
+  final VoidCallback onDelete;
+
+  const _OwnerVenueCard({
+    required this.venue,
+    required this.onView,
+    required this.onEdit,
+    required this.onManageSlots,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Gambar venue
+          Stack(
+            children: [
+              SizedBox(
+                height: 120,
+                width: double.infinity,
+                child: venue.imageUrl != null
+                    ? CachedNetworkImage(
+                        imageUrl: venue.imageUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => _placeholder,
+                        errorWidget: (_, __, ___) => _placeholder,
+                      )
+                    : _placeholder,
+              ),
+              Positioned(
+                top: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    venue.type,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Info + tombol
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        venue.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.textPrimary,
+                        ),
+                      ),
+                    ),
+                    if (venue.averageRating != null)
+                      Row(
+                        children: [
+                          const Icon(Icons.star,
+                              color: AppTheme.starColor, size: 14),
+                          Text(
+                            ' ${venue.averageRating!.toStringAsFixed(1)}',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13),
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${venue.reviewCount ?? 0} ulasan',
+                  style: const TextStyle(
+                      color: AppTheme.textSecondary, fontSize: 12),
+                ),
+                const SizedBox(height: 12),
+
+                // Action buttons
+                Row(
+                  children: [
+                    // Kelola Slot — tombol utama
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: onManageSlots,
+                        icon: const Icon(Icons.access_time,
+                            size: 16, color: Colors.white),
+                        label: const Text('Slot Jam'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10),
+                          textStyle: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Lihat
+                    _IconBtn(
+                        icon: Icons.visibility_outlined,
+                        color: AppTheme.secondaryColor,
+                        onTap: onView),
+                    const SizedBox(width: 6),
+                    // Edit
+                    _IconBtn(
+                        icon: Icons.edit_outlined,
+                        color: AppTheme.warningColor,
+                        onTap: onEdit),
+                    const SizedBox(width: 6),
+                    // Hapus
+                    _IconBtn(
+                        icon: Icons.delete_outline,
+                        color: AppTheme.errorColor,
+                        onTap: onDelete),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget get _placeholder => Container(
+        color: AppTheme.primaryColor.withOpacity(0.08),
+        child: const Center(
+            child: Text('🏟️', style: TextStyle(fontSize: 40))),
+      );
+}
+
+class _IconBtn extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _IconBtn(
+      {required this.icon, required this.color, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: color, size: 18),
       ),
     );
   }
@@ -301,7 +490,7 @@ class _StatCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 28)),
+            Text(icon, style: const TextStyle(fontSize: 26)),
             const SizedBox(height: 8),
             Text(
               value,

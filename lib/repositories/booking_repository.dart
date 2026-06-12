@@ -13,48 +13,36 @@ class BookingRepository {
     return BookingModel.fromJson(data);
   }
 
-  // Ambil booking user (untuk user)
+  // Ambil booking milik user (dengan info slot)
   Future<List<BookingModel>> getUserBookings(String userId) async {
     final data = await supabase
         .from('bookings')
-        .select('*, venues(name)')
+        .select('*, venues(name), venue_slots(start_time, end_time, price)')
         .eq('user_id', userId)
         .order('created_at', ascending: false);
 
     return data.map((item) => BookingModel.fromJson(item)).toList();
   }
 
-  // Stream booking owner (realtime)
-  Stream<List<BookingModel>> streamOwnerBookings(String ownerId) {
-    return supabase
-        .from('bookings')
-        .stream(primaryKey: ['id'])
-        .order('created_at', ascending: false)
-        .map((data) {
-          // Filter booking yang venue-nya milik owner ini
-          return data.map((item) => BookingModel.fromJson(item)).toList();
-        });
-  }
-
-  // Ambil booking untuk venue tertentu (owner)
-  Future<List<BookingModel>> getVenueBookings(String venueId) async {
-    final data = await supabase
-        .from('bookings')
-        .select('*, profiles(name, email)')
-        .eq('venue_id', venueId)
-        .order('created_at', ascending: false);
-
-    return data.map((item) => BookingModel.fromJson(item)).toList();
-  }
-
-  // Ambil semua booking dari venue-venue milik owner
+  // Ambil booking untuk semua venue owner (dengan info user dan slot)
   Future<List<BookingModel>> getOwnerAllBookings(List<String> venueIds) async {
     if (venueIds.isEmpty) return [];
 
     final data = await supabase
         .from('bookings')
-        .select('*, profiles(name, email), venues(name)')
+        .select('*, profiles(name, email), venues(name), venue_slots(start_time, end_time, price)')
         .inFilter('venue_id', venueIds)
+        .order('created_at', ascending: false);
+
+    return data.map((item) => BookingModel.fromJson(item)).toList();
+  }
+
+  // Ambil booking untuk venue tertentu
+  Future<List<BookingModel>> getVenueBookings(String venueId) async {
+    final data = await supabase
+        .from('bookings')
+        .select('*, profiles(name, email), venue_slots(start_time, end_time, price)')
+        .eq('venue_id', venueId)
         .order('created_at', ascending: false);
 
     return data.map((item) => BookingModel.fromJson(item)).toList();

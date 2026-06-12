@@ -2,7 +2,7 @@ class ProfileModel {
   final String id;
   final String name;
   final String email;
-  final String role; // 'user' atau 'owner'
+  final String role;
   final String? avatarUrl;
   final DateTime? createdAt;
 
@@ -30,27 +30,15 @@ class ProfileModel {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'role': role,
-      'avatar_url': avatarUrl,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id, 'name': name, 'email': email, 'role': role,
+    'avatar_url': avatarUrl,
+  };
 
-  ProfileModel copyWith({
-    String? name,
-    String? role,
-    String? avatarUrl,
-  }) {
+  ProfileModel copyWith({String? name, String? role, String? avatarUrl}) {
     return ProfileModel(
-      id: id,
-      name: name ?? this.name,
-      email: email,
-      role: role ?? this.role,
-      avatarUrl: avatarUrl ?? this.avatarUrl,
+      id: id, name: name ?? this.name, email: email,
+      role: role ?? this.role, avatarUrl: avatarUrl ?? this.avatarUrl,
       createdAt: createdAt,
     );
   }
