@@ -68,15 +68,16 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
       return;
     }
     if (_messageCtrl.text.trim().isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Tulis pesan untuk owner')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tulis pesan untuk owner')),
+      );
       return;
     }
 
     setState(() => _isLoading = true);
     try {
-      final userId = ref.read(authStateProvider).asData?.value.session?.user.id;
+      final userId =
+          ref.read(authStateProvider).asData?.value.session?.user.id;
       if (userId == null) throw Exception('Sesi tidak ditemukan');
 
       final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
@@ -146,35 +147,27 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                color:
+                                    AppTheme.primaryColor.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: const Center(
-                                child: Text(
-                                  '🏟️',
-                                  style: TextStyle(fontSize: 26),
-                                ),
-                              ),
+                                  child: Text('🏟️',
+                                      style: TextStyle(fontSize: 26))),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    venue.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  Text(
-                                    venue.type,
-                                    style: const TextStyle(
-                                      color: AppTheme.textSecondary,
-                                      fontSize: 13,
-                                    ),
-                                  ),
+                                  Text(venue.name,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 15)),
+                                  Text(venue.type,
+                                      style: const TextStyle(
+                                          color: AppTheme.textSecondary,
+                                          fontSize: 13)),
                                 ],
                               ),
                             ),
@@ -192,10 +185,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
             const Text(
               'Pilih Tanggal',
               style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppTheme.textPrimary,
-              ),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textPrimary),
             ),
             const SizedBox(height: 10),
             SizedBox(
@@ -205,8 +197,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 itemCount: _availableDates.length,
                 itemBuilder: (_, i) {
                   final date = _availableDates[i];
-                  final isSelected =
-                      date.year == _selectedDate.year &&
+                  final isSelected = date.year == _selectedDate.year &&
                       date.month == _selectedDate.month &&
                       date.day == _selectedDate.day;
 
@@ -221,9 +212,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                       duration: const Duration(milliseconds: 200),
                       margin: const EdgeInsets.only(right: 10),
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
+                          horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppTheme.primaryColor
@@ -237,10 +226,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppTheme.primaryColor.withOpacity(0.3),
+                                  color: AppTheme.primaryColor
+                                      .withOpacity(0.3),
                                   blurRadius: 8,
                                   offset: const Offset(0, 3),
-                                ),
+                                )
                               ]
                             : [],
                       ),
@@ -291,18 +281,15 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 const Text(
                   'Pilih Jam',
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: AppTheme.textPrimary,
-                  ),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: AppTheme.textPrimary),
                 ),
                 const SizedBox(width: 8),
                 Text(
                   '(${_dayName(_selectedDayOfWeek)}, ${DateFormat('d MMM').format(_selectedDate)})',
                   style: const TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 13,
-                  ),
+                      color: AppTheme.textSecondary, fontSize: 13),
                 ),
               ],
             ),
@@ -327,11 +314,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                     child: const Center(
                       child: Column(
                         children: [
-                          Text('🕐', style: TextStyle(fontSize: 36)),
+                          Text('🕐',
+                              style: TextStyle(fontSize: 36)),
                           SizedBox(height: 8),
                           Text(
                             'Tidak ada slot tersedia untuk hari ini',
-                            style: TextStyle(color: AppTheme.textSecondary),
+                            style: TextStyle(
+                                color: AppTheme.textSecondary),
                           ),
                         ],
                       ),
@@ -343,7 +332,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   spacing: 10,
                   runSpacing: 10,
                   children: slots.map((s) {
-                    final isSelected = _selectedSlot?.id == s.slot.id;
+                    final isSelected =
+                        _selectedSlot?.id == s.slot.id;
                     Color bgColor;
                     Color textColor;
                     String statusLabel = '';
@@ -366,14 +356,13 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
 
                     return GestureDetector(
                       onTap: s.isAvailable
-                          ? () => setState(() => _selectedSlot = s.slot)
+                          ? () => setState(
+                              () => _selectedSlot = s.slot)
                           : null,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 180),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 12,
-                        ),
+                            horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
                           color: bgColor,
                           borderRadius: BorderRadius.circular(12),
@@ -381,18 +370,18 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                             color: isSelected
                                 ? AppTheme.primaryColor
                                 : s.isBooked
-                                ? AppTheme.errorColor.withOpacity(0.2)
-                                : Colors.grey.shade200,
+                                    ? AppTheme.errorColor
+                                        .withOpacity(0.2)
+                                    : Colors.grey.shade200,
                           ),
                           boxShadow: isSelected
                               ? [
                                   BoxShadow(
-                                    color: AppTheme.primaryColor.withOpacity(
-                                      0.25,
-                                    ),
+                                    color: AppTheme.primaryColor
+                                        .withOpacity(0.25),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
-                                  ),
+                                  )
                                 ]
                               : [],
                         ),
@@ -417,8 +406,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                                 color: isSelected
                                     ? Colors.white70
                                     : s.isBooked || s.isExpired
-                                    ? textColor
-                                    : AppTheme.primaryColor,
+                                        ? textColor
+                                        : AppTheme.primaryColor,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -439,7 +428,8 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 _LegendItem(color: AppTheme.primaryColor, label: 'Dipilih'),
                 _LegendItem(color: AppTheme.errorColor, label: 'Penuh'),
                 _LegendItem(color: Colors.grey.shade400, label: 'Sudah Lewat'),
-                _LegendItem(color: Colors.grey.shade300, label: 'Tersedia'),
+                _LegendItem(
+                    color: Colors.grey.shade300, label: 'Tersedia'),
               ],
             ),
 
@@ -453,16 +443,12 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   color: AppTheme.primaryColor.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppTheme.primaryColor.withOpacity(0.3),
-                  ),
+                      color: AppTheme.primaryColor.withOpacity(0.3)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(
-                      Icons.check_circle,
-                      color: AppTheme.primaryColor,
-                      size: 20,
-                    ),
+                    const Icon(Icons.check_circle,
+                        color: AppTheme.primaryColor, size: 20),
                     const SizedBox(width: 10),
                     Expanded(
                       child: Column(
@@ -471,16 +457,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                           Text(
                             '${_dayName(_selectedSlot!.dayOfWeek)}, ${DateFormat('d MMM yyyy').format(_selectedDate)}',
                             style: const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.primaryColor,
-                            ),
+                                fontWeight: FontWeight.w600,
+                                color: AppTheme.primaryColor),
                           ),
                           Text(
                             '${_selectedSlot!.timeLabel}  ·  ${_selectedSlot!.priceLabel}',
                             style: const TextStyle(
-                              color: AppTheme.textSecondary,
-                              fontSize: 13,
-                            ),
+                                color: AppTheme.textSecondary,
+                                fontSize: 13),
                           ),
                         ],
                       ),
@@ -510,19 +494,14 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
               ),
               child: const Row(
                 children: [
-                  Icon(
-                    Icons.info_outline,
-                    color: AppTheme.secondaryColor,
-                    size: 16,
-                  ),
+                  Icon(Icons.info_outline,
+                      color: AppTheme.secondaryColor, size: 16),
                   SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       'Booking akan dikonfirmasi oleh owner. Tidak ada pembayaran online.',
                       style: TextStyle(
-                        color: AppTheme.secondaryColor,
-                        fontSize: 12,
-                      ),
+                          color: AppTheme.secondaryColor, fontSize: 12),
                     ),
                   ),
                 ],
@@ -539,9 +518,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         width: 22,
                         height: 22,
                         child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : const Text('Kirim Booking'),
               ),
@@ -554,16 +531,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
   }
 
   String _dayName(int dow) {
-    const days = [
-      '',
-      'Senin',
-      'Selasa',
-      'Rabu',
-      'Kamis',
-      'Jumat',
-      'Sabtu',
-      'Minggu',
-    ];
+    const days = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
     return days[dow];
   }
 }
@@ -579,8 +547,7 @@ class _LegendItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 12, height: 12,
           decoration: BoxDecoration(
             color: color.withOpacity(0.3),
             borderRadius: BorderRadius.circular(3),
@@ -588,10 +555,9 @@ class _LegendItem extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
-        ),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 11, color: AppTheme.textSecondary)),
       ],
     );
   }

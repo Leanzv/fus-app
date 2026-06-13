@@ -12,10 +12,9 @@ import '../screens/venue/add_venue_screen.dart';
 import '../screens/venue/edit_venue_screen.dart';
 import '../screens/review/add_review_screen.dart';
 import '../screens/booking/booking_screen.dart';
-import '../screens/booking/owner_bookings_screen.dart';
-import '../screens/profile/profile_screen.dart';
-import '../screens/owner/owner_dashboard_screen.dart';
+import '../screens/chat/chat_detail_screen.dart';
 import '../screens/owner/manage_slots_screen.dart';
+import '../models/booking_model.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -24,8 +23,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: '/splash',
     redirect: (context, state) {
       final isLoggedIn = authState.asData?.value.session != null;
-      final isSplash = state.matchedLocation == '/splash';
-      final isAuth = state.matchedLocation.startsWith('/auth');
+      final isSplash   = state.matchedLocation == '/splash';
+      final isAuth     = state.matchedLocation.startsWith('/auth');
 
       if (isSplash) return null;
       if (!isLoggedIn && !isAuth) return '/auth/login';
@@ -33,54 +32,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/splash', builder: (_, __) => const SplashScreen()),
-      GoRoute(path: '/auth/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(
-        path: '/auth/register',
-        builder: (_, __) => const RegisterScreen(),
-      ),
-      GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+      GoRoute(path: '/splash',
+          builder: (_, __) => const SplashScreen()),
+      GoRoute(path: '/auth/login',
+          builder: (_, __) => const LoginScreen()),
+      GoRoute(path: '/auth/register',
+          builder: (_, __) => const RegisterScreen()),
+
+      // HomeScreen sudah berisi bottom nav + IndexedStack
+      GoRoute(path: '/home',
+          builder: (_, __) => const HomeScreen()),
 
       // ✅ /venue/add HARUS sebelum /venue/:id
-      GoRoute(path: '/venue/add', builder: (_, __) => const AddVenueScreen()),
+      GoRoute(path: '/venue/add',
+          builder: (_, __) => const AddVenueScreen()),
 
-      GoRoute(
-        path: '/venue/:id',
-        builder: (_, state) =>
-            VenueDetailScreen(venueId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/venue/:id/edit',
-        builder: (_, state) =>
-            EditVenueScreen(venueId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/venue/:id/review',
-        builder: (_, state) =>
-            AddReviewScreen(venueId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/venue/:id/booking',
-        builder: (_, state) =>
-            BookingScreen(venueId: state.pathParameters['id']!),
-      ),
-      GoRoute(
-        path: '/venue/:id/slots',
-        builder: (_, state) => ManageSlotsScreen(
-          venueId: state.pathParameters['id']!,
-          venueName: state.extra as String? ?? 'Venue',
-        ),
-      ),
+      GoRoute(path: '/venue/:id',
+          builder: (_, state) => VenueDetailScreen(
+              venueId: state.pathParameters['id']!)),
 
-      GoRoute(
-        path: '/owner/bookings',
-        builder: (_, __) => const OwnerBookingsScreen(),
-      ),
-      GoRoute(
-        path: '/owner/dashboard',
-        builder: (_, __) => const OwnerDashboardScreen(),
-      ),
-      GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
+      GoRoute(path: '/venue/:id/edit',
+          builder: (_, state) => EditVenueScreen(
+              venueId: state.pathParameters['id']!)),
+
+      GoRoute(path: '/venue/:id/review',
+          builder: (_, state) => AddReviewScreen(
+              venueId: state.pathParameters['id']!)),
+
+      GoRoute(path: '/venue/:id/booking',
+          builder: (_, state) => BookingScreen(
+              venueId: state.pathParameters['id']!)),
+
+      GoRoute(path: '/venue/:id/slots',
+          builder: (_, state) => ManageSlotsScreen(
+            venueId:   state.pathParameters['id']!,
+            venueName: state.extra as String? ?? 'Venue',
+          )),
+
+      // Chat detail — buka dari list booking user
+      GoRoute(path: '/chat/:id',
+          builder: (_, state) => ChatDetailScreen(
+            bookingId: state.pathParameters['id']!,
+            booking:   state.extra as BookingModel?,
+          )),
     ],
   );
 });
