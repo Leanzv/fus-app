@@ -450,13 +450,42 @@ class _SlotTile extends StatelessWidget {
                       fontSize: 13,
                     ),
                   ),
+                  const SizedBox(height: 2),
+                  // Label status aktif/nonaktif
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: slot.isActive
+                          ? AppTheme.primaryColor.withOpacity(0.1)
+                          : Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      slot.isActive
+                          ? '✅ Tampil ke pengguna'
+                          : '🚫 Disembunyikan',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: slot.isActive
+                            ? AppTheme.primaryColor
+                            : AppTheme.textSecondary,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-            Switch(
-              value: slot.isActive,
-              onChanged: onToggle,
-              activeColor: AppTheme.primaryColor,
+            Tooltip(
+              message: slot.isActive
+                  ? 'Nonaktifkan: sembunyikan dari pengguna'
+                  : 'Aktifkan: tampilkan ke pengguna',
+              child: Switch(
+                value: slot.isActive,
+                onChanged: onToggle,
+                activeColor: AppTheme.primaryColor,
+              ),
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline,

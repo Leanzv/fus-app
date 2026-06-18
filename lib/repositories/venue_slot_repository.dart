@@ -2,7 +2,7 @@ import '../main.dart';
 import '../models/venue_slot_model.dart';
 
 class VenueSlotRepository {
-  // Ambil semua slot milik venue
+  // Semua slot milik venue (untuk owner manage)
   Future<List<VenueSlotModel>> getSlotsByVenue(String venueId) async {
     final data = await supabase
         .from('venue_slots')
@@ -10,11 +10,10 @@ class VenueSlotRepository {
         .eq('venue_id', venueId)
         .order('day_of_week')
         .order('start_time');
-
     return data.map((e) => VenueSlotModel.fromJson(e)).toList();
   }
 
-  // Ambil slot aktif berdasarkan venue dan hari
+  // Slot AKTIF berdasarkan venue dan hari — hanya is_active = true
   Future<List<VenueSlotModel>> getActiveSlotsByDay(
       String venueId, int dayOfWeek) async {
     final data = await supabase
@@ -24,7 +23,6 @@ class VenueSlotRepository {
         .eq('day_of_week', dayOfWeek)
         .eq('is_active', true)
         .order('start_time');
-
     return data.map((e) => VenueSlotModel.fromJson(e)).toList();
   }
 
@@ -35,11 +33,10 @@ class VenueSlotRepository {
         .insert(slot.toJson())
         .select()
         .single();
-
     return VenueSlotModel.fromJson(data);
   }
 
-  // Toggle aktif/nonaktif slot
+  // Toggle aktif/nonaktif
   Future<void> toggleSlot(String slotId, bool isActive) async {
     await supabase
         .from('venue_slots')
@@ -52,7 +49,8 @@ class VenueSlotRepository {
     await supabase.from('venue_slots').delete().eq('id', slotId);
   }
 
-  // Ambil slot yang sudah dibooking untuk tanggal tertentu
+  // ✅ FIX: Ambil slot_id yang sudah dibooking untuk tanggal tertentu
+  // Filter slot_id NOT NULL untuk hindari booking lama tanpa slot
   Future<List<String>> getBookedSlotIds(
       String venueId, DateTime date) async {
     final dateStr =
@@ -63,7 +61,8 @@ class VenueSlotRepository {
         .select('slot_id')
         .eq('venue_id', venueId)
         .eq('booking_date', dateStr)
-        .inFilter('status', ['pending', 'confirmed']);
+        .inFilter('status', ['pending', 'confirmed'])
+        .not('slot_id', 'is', null); // ✅ abaikan booking tanpa slot_id
 
     return data
         .map((e) => e['slot_id'] as String)
