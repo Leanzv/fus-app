@@ -455,6 +455,10 @@ class _OwnerMessagesSheet extends ConsumerWidget {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 10),
                       child: ListTile(
+                        onTap: () {
+                          Navigator.pop(context); // tutup sheet
+                          context.push('/chat/${b.id}', extra: b);
+                        },
                         leading: CircleAvatar(
                           radius: 20,
                           backgroundColor:

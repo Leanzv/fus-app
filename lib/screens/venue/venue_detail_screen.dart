@@ -123,7 +123,29 @@ class VenueDetailScreen extends ConsumerWidget {
                                 itemBuilder: (_, __) => const Icon(Icons.star, color: AppTheme.starColor)),
                               if (uid == r.userId) IconButton(
                                 icon: const Icon(Icons.delete_outline, size: 18, color: AppTheme.errorColor),
-                                onPressed: () => ref.read(reviewRepositoryProvider).deleteReview(r.id)),
+                                onPressed: () async {
+                                  final ok = await showDialog<bool>(
+                                    context: context,
+                                    builder: (_) => AlertDialog(
+                                      title: const Text('Hapus Ulasan'),
+                                      content: const Text('Yakin ingin menghapus ulasan ini?'),
+                                      actions: [
+                                        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+                                        ElevatedButton(
+                                          onPressed: () => Navigator.pop(context, true),
+                                          style: ElevatedButton.styleFrom(backgroundColor: AppTheme.errorColor),
+                                          child: const Text('Hapus')),
+                                      ]));
+                                  if (ok == true) {
+                                    try {
+                                      await ref.read(reviewRepositoryProvider).deleteReview(r.id);
+                                      ref.invalidate(venueReviewsProvider(venueId));
+                                    } catch (e) {
+                                      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Gagal hapus: $e'), backgroundColor: AppTheme.errorColor));
+                                    }
+                                  }
+                                }),
                             ]),
                             if (r.comment.isNotEmpty) ...[
                               const SizedBox(height: 8),
