@@ -11,8 +11,6 @@ final userBookingsProvider =
   return ref.watch(bookingRepositoryProvider).getUserBookings(userId);
 });
 
-// ✅ FIX: gunakan String (comma-joined) sebagai key, bukan List<String>
-// Riverpod family tidak support List sebagai key dengan equality yang benar
 final ownerBookingsProvider =
     FutureProvider.family<List<BookingModel>, String>((ref, venueIdsJoined) async {
   if (venueIdsJoined.isEmpty) return [];

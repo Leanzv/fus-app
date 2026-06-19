@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -9,12 +10,12 @@ import 'core/router.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Inisialisasi locale Indonesia untuk intl (format tanggal)
+  // Inisialisasi locale Indonesia untuk format tanggal
   await initializeDateFormatting('id_ID', null);
 
   await Supabase.initialize(
-    url: 'YOUR_SUPABASE_URL',          // Ganti dengan URL Supabase Anda
-    anonKey: 'YOUR_SUPABASE_ANON_KEY', // Ganti dengan Anon Key Supabase Anda
+    url: 'https://jpvvhtvdmjykwdxgnjxu.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpwdnZodHZkbWp5a3dkeGduanh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwMTY5NDQsImV4cCI6MjA5NTU5Mjk0NH0.sSmhQAUAtVSuPD4jpoT-oVRtwHyPH4N2g3pa_TvLY-o',
   );
 
   runApp(
@@ -24,7 +25,6 @@ Future<void> main() async {
   );
 }
 
-// Shortcut global untuk Supabase client
 final supabase = Supabase.instance.client;
 
 class FuSApp extends ConsumerWidget {
@@ -39,11 +39,19 @@ class FuSApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: router,
-      // Support locale Indonesia
+
+      // Localization
       locale: const Locale('id', 'ID'),
+
       supportedLocales: const [
         Locale('id', 'ID'),
         Locale('en', 'US'),
+      ],
+
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
     );
   }

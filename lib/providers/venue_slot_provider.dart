@@ -54,8 +54,6 @@ class SlotWithStatus {
   });
 }
 
-// ✅ FIX: Provider pakai String key (bukan object) untuk menghindari
-// masalah equality yang menyebabkan provider tidak refresh
 final availableSlotsProvider =
     FutureProvider.family<List<SlotWithStatus>, String>((ref, paramsKey) async {
   // Parse key: "venueId|dayOfWeek|yyyy-MM-dd"

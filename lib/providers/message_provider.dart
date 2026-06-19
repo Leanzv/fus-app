@@ -5,7 +5,6 @@ import '../models/message_model.dart';
 final messageRepositoryProvider =
     Provider<MessageRepository>((ref) => MessageRepository());
 
-// Stream pesan realtime per booking
 final messagesProvider =
     StreamProvider.family<List<MessageModel>, String>((ref, bookingId) {
   return ref.watch(messageRepositoryProvider).streamMessages(bookingId);

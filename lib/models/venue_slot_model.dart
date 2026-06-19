@@ -1,9 +1,9 @@
 class VenueSlotModel {
   final String id;
   final String venueId;
-  final int dayOfWeek; // 1=Senin, 2=Selasa, ..., 7=Minggu
-  final String startTime; // "08:00"
-  final String endTime;   // "09:00"
+  final int dayOfWeek; 
+  final String startTime; 
+  final String endTime;   
   final int price;
   final bool isActive;
   final DateTime? createdAt;
@@ -58,16 +58,13 @@ class VenueSlotModel {
     );
   }
 
-  // Helper: nama hari
   String get dayName {
     const days = ['', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
     return days[dayOfWeek];
   }
 
-  // Helper: label waktu
   String get timeLabel => '$startTime – $endTime';
 
-  // Helper: format harga
   String get priceLabel {
     if (price == 0) return 'Gratis';
     return 'Rp ${_formatNumber(price)}';
@@ -83,7 +80,6 @@ class VenueSlotModel {
   // Cek apakah slot ini hari ini
   bool get isToday {
     final now = DateTime.now();
-    // DateTime weekday: 1=Senin ... 7=Minggu (sama dengan dayOfWeek kita)
     return now.weekday == dayOfWeek;
   }
 
@@ -93,7 +89,7 @@ class VenueSlotModel {
     if (date.year != now.year ||
         date.month != now.month ||
         date.day != now.day) {
-      return false; // Bukan hari ini, belum expired
+      return false; 
     }
     // Parse end_time
     final parts = endTime.split(':');

@@ -5,7 +5,7 @@ class BookingModel {
   final String userId;
   final String venueId;
   final String message;
-  final String status; // 'pending', 'confirmed', 'rejected'
+  final String status; 
   final String? slotId;
   final DateTime? bookingDate;
   final DateTime? createdAt;

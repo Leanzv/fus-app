@@ -39,11 +39,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/auth/register',
           builder: (_, __) => const RegisterScreen()),
 
-      // HomeScreen sudah berisi bottom nav + IndexedStack
       GoRoute(path: '/home',
           builder: (_, __) => const HomeScreen()),
 
-      // ✅ /venue/add HARUS sebelum /venue/:id
       GoRoute(path: '/venue/add',
           builder: (_, __) => const AddVenueScreen()),
 
